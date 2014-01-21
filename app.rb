@@ -17,7 +17,7 @@ get '/' do
   erb :index
 end
 
-# The Products machinery:
+# The Products and Categories machinery:
 
 # Get the index of products
 get '/products' do
@@ -68,7 +68,7 @@ end
 post '/categories' do
   c = PGconn.new(:host => "localhost", :dbname => "storedb")
 
-  # Insert the new row into the products table.
+  # Insert the new row into the categories table.
   c.exec_params("INSERT INTO categories (name) VALUES ($1)",
                   [params["name"]])
 
@@ -224,3 +224,34 @@ def seed_categories_table
   c.close
 end
 
+def create_product_cat_table
+    c = PGconn.new(:host => "localhost", :dbname => "storedb")
+  c.exec %q{
+  CREATE TABLE product_cat (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER,
+    cat_id INTEGER
+  );
+  }
+  c.close
+
+end
+#should be equal to SELECT * FROM products
+#INNER JOIN categories
+# ON true;
+
+#SELECT * FROM products AS p
+#INNER JOIN product_cat AS pc
+#ON pc.product_id=p_id
+def seed_product_cat_table
+
+c = PGconn.new(:host => "localhost", :dbname => "storedb")
+  
+@products = c.exec %q{ SELECT * FROM products;}
+@categories = c.exec %q{SELECT * FROM categories;}
+@product_cat = @products
+      INNER JOIN @categories ON true;
+
+  
+  c.close
+end
